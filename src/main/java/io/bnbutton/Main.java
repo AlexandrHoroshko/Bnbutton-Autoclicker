@@ -190,7 +190,7 @@ public final class Main {
                                 unsuccessfulTries = 0;
                                 System.out.println("Clicks cycle is finished. Waiting for " + millisecondsToWait[0] / 1000 + " seconds to start a new cycle.");
                                 countdownTimer.start(); // Start the countdown timer
-                                Selenide.sleep(millisecondsToWait[0] + 1000);
+                                Selenide.sleep(millisecondsToWait[0] + 2000);
                                 textArea.setText("");
                             } else {
                                 unsuccessfulTries++;
