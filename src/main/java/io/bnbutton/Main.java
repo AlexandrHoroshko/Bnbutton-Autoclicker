@@ -3,6 +3,7 @@ package io.bnbutton;
 import com.codeborne.selenide.Selenide;
 import com.codeborne.selenide.WebDriverRunner;
 import org.openqa.selenium.WebDriver;
+import org.openqa.selenium.remote.UnreachableBrowserException;
 
 import javax.swing.*;
 import java.awt.*;
@@ -76,6 +77,20 @@ public final class Main {
             Timer countdownTimer = new Timer(1000, null);
             countdownTimer.setRepeats(true);
 
+            final long[] millisecondsToWait = new long[1]; // Initial countdown time in milliseconds
+
+            countdownTimer.addActionListener(e1 -> {
+                if (millisecondsToWait[0] >= 0) {
+                    // Get the previous text, append the countdown text, and set it back
+                    String previousText = textArea.getText().replaceFirst("\nTime remaining: \\d+ seconds", ""); // Remove old countdown text
+                    textArea.setText(previousText + "\nTime remaining: " + millisecondsToWait[0] / 1000 + " seconds");
+                    millisecondsToWait[0] -= 1000; // millisecondsToWait - 1 second
+                } else {
+                    textArea.append("\nCountdown complete.");
+                    countdownTimer.stop(); // Stop the timer when countdown is done
+                }
+            });
+
             // Create a JButton
             JButton openBrowserButton = new JButton("Open Browser");
             JButton startClickingButton = new JButton("Start Clicking");
@@ -144,27 +159,13 @@ public final class Main {
                     // Start a new cycle thread
                     clickingThread[0] = new Thread(() -> {
                         if (browser[0] != null && !browser[0].toString().contains("(null)")) {
-                            WebDriverRunner.setWebDriver(browser[0]);
                             startClickingButton.setEnabled(false);
                             stopClickingButton.setEnabled(true);
+                            WebDriverRunner.setWebDriver(browser[0]);
                         } else {
                             JOptionPane.showMessageDialog(frame, "Browser is not opened. Please click on 'Open Browser' button first and config Metamask.");
                             return;
                         }
-
-                        final long[] millisecondsToWait = new long[1]; // Initial countdown time in milliseconds
-
-                        countdownTimer.addActionListener(e1 -> {
-                            if (millisecondsToWait[0] >= 0) {
-                                // Get the previous text, append the countdown text, and set it back
-                                String previousText = textArea.getText().replaceFirst("\nTime remaining: \\d+ seconds", ""); // Remove old countdown text
-                                textArea.setText(previousText + "\nTime remaining: " + millisecondsToWait[0] / 1000 + " seconds");
-                                millisecondsToWait[0] -= 1000; // millisecondsToWait - 1 second
-                            } else {
-                                textArea.append("\nCountdown complete.");
-                                countdownTimer.stop(); // Stop the timer when countdown is done
-                            }
-                        });
 
                         while (true) {
                             boolean isMetamaskConnectedInCurrentCycle = false;
@@ -187,6 +188,9 @@ public final class Main {
                                 if (isMetamaskConnectedInCurrentCycle) {
                                     isClicksDone = Clicker.doClicksOnAllButtons();
                                 }
+                            } catch (UnreachableBrowserException ignored) {
+                                JOptionPane.showMessageDialog(frame, "Browser was closed for unknown reason. Please click on 'Open Browser' button and configure Metamask again.");
+                                break;
                             } catch (Exception ex) {
                                 System.out.println("Something went wrong. Caught exception: \n");
                                 ex.printStackTrace();
@@ -209,6 +213,7 @@ public final class Main {
                                 Selenide.sleep(millisecondsToWaitBeforeNextTry);
                             }
                         }
+                        stopClickingButton.setEnabled(false);
                     });
                     clickingThread[0].start();
                 } else {
@@ -223,6 +228,7 @@ public final class Main {
                 if (clickingThread[0] != null) {
                     clickingThread[0].interrupt();
                 }
+                countdownTimer.stop();
 
                 JOptionPane.showMessageDialog(frame, "Clicking was stopped by user. Please click on 'Start' button to start clicking again.");
 
