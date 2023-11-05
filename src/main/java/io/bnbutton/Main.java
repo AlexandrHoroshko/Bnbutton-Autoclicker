@@ -3,6 +3,7 @@ package io.bnbutton;
 import com.codeborne.selenide.Selenide;
 import com.codeborne.selenide.WebDriverRunner;
 import org.openqa.selenium.WebDriver;
+import org.openqa.selenium.WebDriverException;
 import org.openqa.selenium.remote.UnreachableBrowserException;
 
 import javax.swing.*;
@@ -188,11 +189,11 @@ public final class Main {
                                 if (isMetamaskConnectedInCurrentCycle) {
                                     isClicksDone = Clicker.doClicksOnAllButtons();
                                 }
-                            } catch (UnreachableBrowserException ignored) {
-                                JOptionPane.showMessageDialog(frame, "Browser was closed for unknown reason. Please click on 'Open Browser' button and configure Metamask again.");
+                            } catch (WebDriverException ignored) {
+                                JOptionPane.showMessageDialog(frame, "Something went wrong with browser. Please close browser if it opened and click on 'Open Browser' button and configure Metamask again.");
                                 break;
                             } catch (Exception ex) {
-                                System.out.println("Something went wrong. Caught exception: \n");
+                                System.out.println("\nSomething went wrong. Caught exception: \n");
                                 ex.printStackTrace();
                             }
 
