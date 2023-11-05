@@ -195,7 +195,7 @@ public final class Main {
                                 }
                             } catch (UnreachableBrowserException | NoSuchSessionException |
                                      NoSuchWindowException ignored) {
-                                JOptionPane.showMessageDialog(frame, "Something went wrong with browser. Please click on 'Open Browser' button and configure Metamask again.");
+                                JOptionPane.showMessageDialog(frame, "Something went wrong with browser. Please restart the app.");
                                 break;
                             } catch (Exception ex) {
                                 System.out.println("\nSomething went wrong. Caught exception: \n");
