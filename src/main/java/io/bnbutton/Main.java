@@ -61,6 +61,8 @@ public final class Main {
                             <html>
                             """
             );
+            JLabel errorLabel = new JLabel("<html><font color='red'>Looks like there is to many unsuccessful clicks tries. You may need to restart the app.</font></html>");
+            errorLabel.setVisible(false);
 
             JTextArea textArea = new JTextArea("Here you will see the logs of the process.\n\n", 20, 60);
             textArea.setEditable(false); // Make the text area read-only
@@ -203,6 +205,7 @@ public final class Main {
                             }
 
                             if (isClicksDone) {
+                                errorLabel.setVisible(false);
                                 unsuccessfulTries[0] = 0;
                                 millisecondsToWait[0] = Helpers.RANDOM.nextLong(ONE_MINUTE_IN_MILLISECONDS, THREE_MINUTES_IN_MILLISECONDS);
                                 System.out.println("Clicks cycle is finished. Waiting for " + millisecondsToWait[0] / 1000 + " seconds to start a new cycle.");
@@ -212,7 +215,7 @@ public final class Main {
                             } else {
                                 unsuccessfulTries[0]++;
                                 if (unsuccessfulTries[0] >= unsuccessfulTriesLimit) {
-                                    JOptionPane.showMessageDialog(frame, "Looks like there is to many unsuccessful clicks tries. Please check logs and try to click on 'Stop' and 'Start' button again.");
+                                    errorLabel.setVisible(true);
                                 }
 
                                 millisecondsToWait[0] = Helpers.RANDOM.nextLong(5000, 10000);
@@ -249,6 +252,7 @@ public final class Main {
 
             // Add components to the panels
             infoPanel.add(label);
+            infoPanel.add(errorLabel);
 
             buttonsPanel.add(openBrowserButton);
             buttonsPanel.add(Box.createRigidArea(new Dimension(20, 0))); // 20-pixel horizontal spacing
