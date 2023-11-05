@@ -73,6 +73,9 @@ public final class Main {
             System.setOut(printStream);
             System.setErr(printStream);
 
+            Timer countdownTimer = new Timer(1000, null);
+            countdownTimer.setRepeats(true);
+
             // Create a JButton
             JButton openBrowserButton = new JButton("Open Browser");
             JButton startClickingButton = new JButton("Start Clicking");
@@ -128,8 +131,9 @@ public final class Main {
                 worker.execute();
             });
 
-            final boolean[] doClicksOnButtons = {true};
             final Thread[] clickingThread = {null};
+            final int[] unsuccessfulTries = {0};
+            int unsuccessfulTriesLimit = 60;
 
             // Add an ActionListener to the button
             startClickingButton.addActionListener(e -> {
@@ -141,39 +145,35 @@ public final class Main {
                     clickingThread[0] = new Thread(() -> {
                         if (browser[0] != null && !browser[0].toString().contains("(null)")) {
                             WebDriverRunner.setWebDriver(browser[0]);
-                            doClicksOnButtons[0] = true;
                             startClickingButton.setEnabled(false);
                             stopClickingButton.setEnabled(true);
                         } else {
                             JOptionPane.showMessageDialog(frame, "Browser is not opened. Please click on 'Open Browser' button first and config Metamask.");
                             return;
                         }
-                        BrowserConfig.switchToWindow(mainTabId[0]);
-                        Selenide.open("https://bnbutton.io/buy");
-                        int unsuccessfulTries = 0;
-                        int unsuccessfulTriesLimit = 60;
+
                         final long[] millisecondsToWait = new long[1]; // Initial countdown time in milliseconds
-                        while (doClicksOnButtons[0] && unsuccessfulTries < unsuccessfulTriesLimit) {
+
+                        countdownTimer.addActionListener(e1 -> {
+                            if (millisecondsToWait[0] >= 0) {
+                                // Get the previous text, append the countdown text, and set it back
+                                String previousText = textArea.getText().replaceFirst("\nTime remaining: \\d+ seconds", ""); // Remove old countdown text
+                                textArea.setText(previousText + "\nTime remaining: " + millisecondsToWait[0] / 1000 + " seconds");
+                                millisecondsToWait[0] -= 1000; // millisecondsToWait - 1 second
+                            } else {
+                                textArea.append("\nCountdown complete.");
+                                countdownTimer.stop(); // Stop the timer when countdown is done
+                            }
+                        });
+
+                        while (true) {
                             boolean isMetamaskConnectedInCurrentCycle = false;
                             boolean isClicksDone = false;
-
                             millisecondsToWait[0] = Helpers.RANDOM.nextLong(ONE_MINUTE_IN_MILLISECONDS, THREE_MINUTES_IN_MILLISECONDS);
 
-                            Timer countdownTimer = new Timer(1000, null);
-                            countdownTimer.setRepeats(true);
-                            countdownTimer.addActionListener(e1 -> {
-                                if (millisecondsToWait[0] >= 0) {
-                                    // Get the previous text, append the countdown text, and set it back
-                                    String previousText = textArea.getText().replaceFirst("\nTime remaining: \\d+ seconds", ""); // Remove old countdown text
-                                    textArea.setText(previousText + "\nTime remaining: " + millisecondsToWait[0] / 1000 + " seconds");
-                                    millisecondsToWait[0] -= 1000; // millisecondsToWait - 1 second
-                                } else {
-                                    textArea.append("\nCountdown complete.");
-                                    countdownTimer.stop(); // Stop the timer when countdown is done
-                                }
-                            });
+                            BrowserConfig.switchToWindow(mainTabId[0]);
+                            Selenide.open("https://bnbutton.io/buy");
 
-                            Selenide.refresh();
                             if (WebDriverRunner.getWebDriver().getCurrentUrl().equals("https://bnbutton.io/buy")) {
                                 isClicksDone = Clicker.doClicksOnAllButtons();
                             } else {
@@ -187,26 +187,21 @@ public final class Main {
                                 isClicksDone = Clicker.doClicksOnAllButtons();
                             }
                             if (isClicksDone) {
-                                unsuccessfulTries = 0;
+                                unsuccessfulTries[0] = 0;
                                 System.out.println("Clicks cycle is finished. Waiting for " + millisecondsToWait[0] / 1000 + " seconds to start a new cycle.");
                                 countdownTimer.start(); // Start the countdown timer
-                                Selenide.sleep(millisecondsToWait[0] + 2000);
+                                Selenide.sleep(millisecondsToWait[0] + 1000);
                                 textArea.setText("");
                             } else {
-                                unsuccessfulTries++;
+                                unsuccessfulTries[0]++;
+                                if (unsuccessfulTries[0] >= unsuccessfulTriesLimit) {
+                                    JOptionPane.showMessageDialog(frame, "Looks like there is to many unsuccessful clicks tries. Please check logs and try to click on 'Stop' and 'Start' button again.");
+                                }
+
                                 long millisecondsToWaitBeforeNextTry = Helpers.RANDOM.nextLong(5000, 10000);
                                 Selenide.sleep(millisecondsToWaitBeforeNextTry);
                             }
                         }
-
-                        if (unsuccessfulTries >= unsuccessfulTriesLimit) {
-                            JOptionPane.showMessageDialog(frame, "Clicking is stopped due to unsuccessful tries. Please try to click on 'Start' button again.");
-                        } else {
-                            JOptionPane.showMessageDialog(frame, "Clicking was stopped by user. Please click on 'Start' button to start clicking again.");
-                        }
-
-                        startClickingButton.setEnabled(true);
-                        stopClickingButton.setEnabled(false);
                     });
                     clickingThread[0].start();
                 } else {
@@ -217,15 +212,14 @@ public final class Main {
 
             // Add an ActionListener to the button
             stopClickingButton.addActionListener(e -> {
-                doClicksOnButtons[0] = false;
-                startClickingButton.setEnabled(true);
-                stopClickingButton.setEnabled(false);
-
                 // Interrupt the running thread
                 if (clickingThread[0] != null) {
                     clickingThread[0].interrupt();
                 }
-                doClicksOnButtons[0] = false;
+
+                JOptionPane.showMessageDialog(frame, "Clicking was stopped by user. Please click on 'Start' button to start clicking again.");
+
+                startClickingButton.setEnabled(true);
                 stopClickingButton.setEnabled(false);
             });
 
