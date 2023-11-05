@@ -59,7 +59,9 @@ public final class BrowserConfig {
     }
 
     public static void switchToWindow(String windowId) {
-        WebDriverRunner.getWebDriver().switchTo().window(windowId);
+        if (!WebDriverRunner.getWebDriver().getWindowHandle().equals(windowId)) {
+            WebDriverRunner.getWebDriver().switchTo().window(windowId);
+        }
     }
 
     public static void switchToSecondWindow() {
