@@ -4,7 +4,6 @@ import com.codeborne.selenide.Selenide;
 import com.codeborne.selenide.WebDriverRunner;
 import org.openqa.selenium.NoSuchSessionException;
 import org.openqa.selenium.WebDriver;
-import org.openqa.selenium.WebDriverException;
 import org.openqa.selenium.remote.UnreachableBrowserException;
 
 import javax.swing.*;
@@ -148,6 +147,7 @@ public final class Main {
                 worker.execute();
             });
 
+            final boolean[] doClicksOnButtons = {true};
             final Thread[] clickingThread = {null};
             final int[] unsuccessfulTries = {0};
             int unsuccessfulTriesLimit = 60;
@@ -163,13 +163,14 @@ public final class Main {
                         if (browser[0] != null && !browser[0].toString().contains("(null)")) {
                             startClickingButton.setEnabled(false);
                             stopClickingButton.setEnabled(true);
+                            doClicksOnButtons[0] = true;
                             WebDriverRunner.setWebDriver(browser[0]);
                         } else {
                             JOptionPane.showMessageDialog(frame, "Browser is not opened. Please click on 'Open Browser' button first and config Metamask.");
                             return;
                         }
 
-                        while (true) {
+                        while (doClicksOnButtons[0]) {
                             boolean isMetamaskConnectedInCurrentCycle = false;
                             boolean isClicksDone = false;
                             millisecondsToWait[0] = Helpers.RANDOM.nextLong(ONE_MINUTE_IN_MILLISECONDS, THREE_MINUTES_IN_MILLISECONDS);
@@ -226,10 +227,13 @@ public final class Main {
 
             // Add an ActionListener to the button
             stopClickingButton.addActionListener(e -> {
+                doClicksOnButtons[0] = false;
+
                 // Interrupt the running thread
                 if (clickingThread[0] != null) {
                     clickingThread[0].interrupt();
                 }
+
                 countdownTimer.stop();
 
                 JOptionPane.showMessageDialog(frame, "Clicking was stopped by user. Please click on 'Start' button to start clicking again.");
