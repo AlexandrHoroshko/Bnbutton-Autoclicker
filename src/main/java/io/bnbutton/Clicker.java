@@ -51,52 +51,52 @@ public class Clicker {
         return isClicksFinished;
     }
 
-    public static void doClicksOnCommonButton() {
+    public static void doClicksOnCommonButton() throws RuntimeException {
         System.out.println("\nTrying to click on COMMON button");
         doClicksOnButton(COMMON_BUTTON_LOCATOR);
     }
 
-    public static void doClicksOnUncommonButton() {
+    public static void doClicksOnUncommonButton() throws RuntimeException {
         System.out.println("\nTrying to click on UNCOMMON button");
         doClicksOnButton(UNCOMMON_BUTTON_LOCATOR);
     }
 
-    public static void doClicksOnRareButton() {
+    public static void doClicksOnRareButton() throws RuntimeException {
         System.out.println("\nTrying to click on RARE button");
         doClicksOnButton(RARE_BUTTON_LOCATOR);
     }
 
-    public static void doClicksOnMagicButton() {
+    public static void doClicksOnMagicButton() throws RuntimeException {
         System.out.println("\nTrying to click on MAGIC button");
         doClicksOnButton(MAGIC_BUTTON_LOCATOR);
     }
 
-    public static void doClicksOnMysticButton() {
+    public static void doClicksOnMysticButton() throws RuntimeException {
         System.out.println("\nTrying to click on MYSTIC button");
         doClicksOnButton(MYSTIC_BUTTON_LOCATOR);
     }
 
-    public static void doClicksOnGoldButton() {
+    public static void doClicksOnGoldButton() throws RuntimeException {
         System.out.println("\nTrying to click on GOLD button");
         doClicksOnButton(GOLD_BUTTON_LOCATOR);
     }
 
-    public static void doClicksOnPlatinumButton() {
+    public static void doClicksOnPlatinumButton() throws RuntimeException {
         System.out.println("\nTrying to click on PLATINUM button");
         doClicksOnButton(PLATINUM_BUTTON_LOCATOR);
     }
 
-    public static void doClicksOnDiamondButton() {
+    public static void doClicksOnDiamondButton() throws RuntimeException {
         System.out.println("\nTrying to click on DIAMOND button");
         doClicksOnButton(DIAMOND_BUTTON_LOCATOR);
     }
 
-    public static void doClicksOnLegendaryButton() {
+    public static void doClicksOnLegendaryButton() throws RuntimeException {
         System.out.println("\nTrying to click on LEGENDARY button");
         doClicksOnButton(LEGENDARY_BUTTON_LOCATOR);
     }
 
-    private static void doClicksOnButton(By buttonLocator) {
+    private static void doClicksOnButton(By buttonLocator) throws RuntimeException {
         try {
             SelenideElement button = $(buttonLocator);
             button.scrollIntoView(true);
@@ -126,36 +126,43 @@ public class Clicker {
                 System.out.println("Button is not bought");
             }
         } catch (Exception e) {
-            System.out.println("Something went wrong. Caught exception: \n");
-            e.printStackTrace();
+            throw new RuntimeException(e);
         }
     }
 
-    private static boolean isButtonBought(SelenideElement button) {
-        return getParentButtonContainer(button).find(AVAILABLE_CLICKS_COUNT_LOCATOR).exists();
+    private static boolean isButtonBought(SelenideElement button) throws RuntimeException {
+        return getButtonParentContainer(button).find(AVAILABLE_CLICKS_COUNT_LOCATOR).exists();
     }
 
-    private static int getAvailableClicksCountForButton(SelenideElement button) {
+    private static int getAvailableClicksCountForButton(SelenideElement button) throws RuntimeException {
         System.out.println("Getting available clicks count for button");
-        var countElement = getParentButtonContainer(button).find(AVAILABLE_CLICKS_COUNT_LOCATOR);
-        String countText = countElement.text();
-        if (countText.equals("...")) {
-            sleep(1000);
-            countText = countElement.text();
+        try {
+            var countElement = getButtonParentContainer(button).find(AVAILABLE_CLICKS_COUNT_LOCATOR);
+            String countText = countElement.text();
+            if (countText.equals("...")) {
+                sleep(1000);
+                countText = countElement.text();
+            }
+            return Integer.parseInt(countText);
+        } catch (Exception e) {
+            throw new RuntimeException(e);
         }
-        return Integer.parseInt(countText);
     }
 
-    private static double getStrengthPercentForButton(SelenideElement button) {
+    private static double getStrengthPercentForButton(SelenideElement button) throws RuntimeException {
         System.out.println("Getting strength percent for button");
-        return Double.parseDouble(getParentButtonContainer(button).find(STRENGTH_PERCENT_LOCATOR).text().replace("%", ""));
+        try {
+            return Double.parseDouble(getButtonParentContainer(button).find(STRENGTH_PERCENT_LOCATOR).text().replace("%", ""));
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
     }
 
     private static boolean repairButton(SelenideElement button) {
         boolean isButtonRepaired = false;
         try {
             System.out.println("Clicking on REPAIR button");
-            Helpers.clickByActions(getParentButtonContainer(button).find(BUTTON_REPAIR_LOCATOR));
+            Helpers.clickByActions(getButtonParentContainer(button).find(BUTTON_REPAIR_LOCATOR));
             System.out.println("Waiting for REPAIR confirmation popup");
             $(HEADER_REPAIR_CONFIRMATION_LOCATOR).shouldBe(Condition.visible);
             System.out.println("Clicking on OK button in REPAIR confirmation popup");
@@ -163,18 +170,28 @@ public class Clicker {
             System.out.println("Waiting for REPAIR confirmation popup to disappear");
             $(HEADER_REPAIR_CONFIRMATION_LOCATOR).should(Condition.disappear);
             isButtonRepaired = true;
-        } catch (Exception ignored) {
+        } catch (Exception e) {
+            System.out.println("Something went wrong. Caught exception: \n");
+            e.printStackTrace();
         }
         return isButtonRepaired;
     }
 
-    public static void openNftButtonsTab() {
+    public static void openNftButtonsTab() throws RuntimeException {
         System.out.println("\nOpening NFT BUTTONS tab");
-        Helpers.clickByActions($(TAB_NFT_BUTTONS_LOCATOR));
+        try {
+            Helpers.clickByActions($(TAB_NFT_BUTTONS_LOCATOR));
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
     }
 
-    private static SelenideElement getParentButtonContainer(SelenideElement button) {
-        return button.parent().parent().parent().parent().parent();
+    private static SelenideElement getButtonParentContainer(SelenideElement button) throws RuntimeException {
+        try {
+            return button.parent().parent().parent().parent().parent();
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
     }
 
 }

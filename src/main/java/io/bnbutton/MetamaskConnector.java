@@ -15,45 +15,74 @@ public class MetamaskConnector {
     private static final By BUTTON_SIGN_LOCATOR = Selectors.byText("Sign");
 
     public static void connectWallet(String mainTabId) {
-        if (!isLogoutButtonVisible()) {
-            clickOnConnectWalletButton();
-            if (BrowserConfig.waitForOpenSecondWindow()) {
-                BrowserConfig.switchToSecondWindow();
-//                if (isApproveButtonVisible()) {
-//                    clickOnApproveButton();
-//                    clickOnSwitchNetworkButton();
-//                    Selenide.sleep(5000);
-//                }
-                MetamaskConnector.clickOnSignButton();
-                if (BrowserConfig.waitForCloseSecondWindow()) {
-                    BrowserConfig.switchToWindow(mainTabId);
-                    System.out.println("Metamask successfully connected");
+        try {
+            System.out.println("Checking if Metamask is connected...");
+            if (!isLogoutButtonVisible()) {
+                System.out.println("Metamask is not connected, trying to connect...");
+                clickOnConnectWalletButton();
+                if (BrowserConfig.waitForOpenSecondWindow()) {
+                    BrowserConfig.switchToSecondWindow();
+    //                if (isApproveButtonVisible()) {
+    //                    clickOnApproveButton();
+    //                    clickOnSwitchNetworkButton();
+    //                    Selenide.sleep(5000);
+    //                }
+                    MetamaskConnector.clickOnSignButton();
+                    if (BrowserConfig.waitForCloseSecondWindow()) {
+                        BrowserConfig.switchToWindow(mainTabId);
+                        System.out.println("Metamask successfully connected");
+                    }
                 }
             }
+        } catch (RuntimeException e) {
+            System.out.println("Something went wrong while connecting Metamask. Caught exception: \n");
+            e.printStackTrace();
         }
     }
 
-    private static void clickOnConnectWalletButton() {
-        Helpers.clickByActions(Selenide.$(BUTTON_CONNECT_WALLET_LOCATOR));
+    private static void clickOnConnectWalletButton() throws RuntimeException {
+        System.out.println("Click on 'Connect Wallet' button");
+        try {
+            Helpers.clickByActions(Selenide.$(BUTTON_CONNECT_WALLET_LOCATOR));
+        } catch (RuntimeException e) {
+            throw new RuntimeException(e);
+        }
     }
 
     private static boolean isLogoutButtonVisible() {
+        System.out.println("Check if 'Logout' button is visible");
         return Selenide.$(BUTTON_LOGOUT_LOCATOR).exists();
     }
 
     private static boolean isApproveButtonVisible() {
+        System.out.println("Check if 'Approve' button is visible");
         return Selenide.$(BUTTON_APPROVE_LOCATOR).exists();
     }
 
-    private static void clickOnApproveButton() {
-        Helpers.clickByActions(Selenide.$(BUTTON_APPROVE_LOCATOR));
+    private static void clickOnApproveButton() throws RuntimeException {
+        System.out.println("Click on 'Approve' button");
+        try {
+            Helpers.clickByActions(Selenide.$(BUTTON_APPROVE_LOCATOR));
+        } catch (RuntimeException e) {
+            throw new RuntimeException(e);
+        }
     }
 
-    private static void clickOnSwitchNetworkButton() {
-        Helpers.clickByActions(Selenide.$(BUTTON_SWITCH_NETWORK_LOCATOR));
+    private static void clickOnSwitchNetworkButton() throws RuntimeException {
+        System.out.println("Click on 'Switch network' button");
+        try {
+            Helpers.clickByActions(Selenide.$(BUTTON_SWITCH_NETWORK_LOCATOR));
+        } catch (RuntimeException e) {
+            throw new RuntimeException(e);
+        }
     }
 
-    private static void clickOnSignButton() {
-        Helpers.clickByActions(Selenide.$(BUTTON_SIGN_LOCATOR));
+    private static void clickOnSignButton() throws RuntimeException {
+        System.out.println("Click on 'Sign' button");
+        try {
+            Helpers.clickByActions(Selenide.$(BUTTON_SIGN_LOCATOR));
+        } catch (RuntimeException e) {
+            throw new RuntimeException(e);
+        }
     }
 }

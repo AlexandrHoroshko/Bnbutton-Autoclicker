@@ -10,8 +10,12 @@ public class Helpers {
 
     public static final Random RANDOM = new Random();
 
-    public static void clickByActions(SelenideElement element) {
-        actions().moveToElement(element).click().perform();
+    public static void clickByActions(SelenideElement element) throws RuntimeException {
+        try {
+            actions().moveToElement(element).click().perform();
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
     }
 
 }
