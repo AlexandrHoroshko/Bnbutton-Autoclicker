@@ -189,7 +189,7 @@ public final class Main {
                                     isClicksDone = Clicker.doClicksOnAllButtons();
                                 }
                             } catch (WebDriverException ignored) {
-                                JOptionPane.showMessageDialog(frame, "Something went wrong with browser. Please close browser if it opened and click on 'Open Browser' button and configure Metamask again.");
+                                JOptionPane.showMessageDialog(frame, "Something went wrong with browser. Please click on 'Open Browser' button and configure Metamask again.");
                                 break;
                             } catch (Exception ex) {
                                 System.out.println("\nSomething went wrong. Caught exception: \n");
