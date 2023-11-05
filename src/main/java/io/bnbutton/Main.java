@@ -3,6 +3,7 @@ package io.bnbutton;
 import com.codeborne.selenide.Selenide;
 import com.codeborne.selenide.WebDriverRunner;
 import org.openqa.selenium.NoSuchSessionException;
+import org.openqa.selenium.NoSuchWindowException;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.remote.UnreachableBrowserException;
 
@@ -182,15 +183,18 @@ public final class Main {
                                     isClicksDone = Clicker.doClicksOnAllButtons();
                                 } else {
                                     BrowserConfig.closeAllWindowsExceptOfMain(mainTabId[0]);
+                                    BrowserConfig.switchToWindow(mainTabId[0]);
                                     Selenide.open("https://bnbutton.io/");
                                     MetamaskConnector.connectWallet(mainTabId[0]);
+                                    BrowserConfig.switchToWindow(mainTabId[0]);
                                     Selenide.open("https://bnbutton.io/buy");
                                     isMetamaskConnectedInCurrentCycle = true;
                                 }
                                 if (isMetamaskConnectedInCurrentCycle) {
                                     isClicksDone = Clicker.doClicksOnAllButtons();
                                 }
-                            } catch (UnreachableBrowserException | NoSuchSessionException ignored) {
+                            } catch (UnreachableBrowserException | NoSuchSessionException |
+                                     NoSuchWindowException ignored) {
                                 JOptionPane.showMessageDialog(frame, "Something went wrong with browser. Please click on 'Open Browser' button and configure Metamask again.");
                                 break;
                             } catch (Exception ex) {

@@ -2,6 +2,7 @@ package io.bnbutton;
 
 import com.codeborne.selenide.Configuration;
 import com.codeborne.selenide.WebDriverRunner;
+import org.openqa.selenium.NoSuchWindowException;
 import org.openqa.selenium.chrome.ChromeOptions;
 
 import java.io.File;
@@ -59,7 +60,13 @@ public final class BrowserConfig {
     }
 
     public static void switchToWindow(String windowId) {
-        if (!WebDriverRunner.getWebDriver().getWindowHandle().equals(windowId)) {
+        boolean isCurrentWindowDifferentFromTarget;
+        try {
+            isCurrentWindowDifferentFromTarget = !WebDriverRunner.getWebDriver().getWindowHandle().equals(windowId);
+        } catch (NoSuchWindowException ignored) {
+            isCurrentWindowDifferentFromTarget = true;
+        }
+        if (isCurrentWindowDifferentFromTarget) {
             WebDriverRunner.getWebDriver().switchTo().window(windowId);
         }
     }
@@ -91,13 +98,14 @@ public final class BrowserConfig {
 
     public static boolean waitForCloseSecondWindow() {
         int tries = 0;
-        boolean isSecondWindowClosed = false;
+        boolean isSecondWindowClosed;
         System.out.println("Waiting for closing Metamask window");
-        while (!isSecondWindowClosed && tries < 10) {
+        do {
             isSecondWindowClosed = WebDriverRunner.getWebDriver().getWindowHandles().size() == 1;
             sleep(1000);
             tries++;
         }
+        while (!isSecondWindowClosed && tries < 10);
         if (isSecondWindowClosed) {
             System.out.println("Metamask window is closed");
         } else {
