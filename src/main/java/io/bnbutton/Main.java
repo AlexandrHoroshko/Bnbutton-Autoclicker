@@ -173,7 +173,6 @@ public final class Main {
                         while (doClicksOnButtons[0]) {
                             boolean isMetamaskConnectedInCurrentCycle = false;
                             boolean isClicksDone = false;
-                            millisecondsToWait[0] = Helpers.RANDOM.nextLong(ONE_MINUTE_IN_MILLISECONDS, THREE_MINUTES_IN_MILLISECONDS);
 
                             try {
                                 BrowserConfig.switchToWindow(mainTabId[0]);
@@ -201,6 +200,7 @@ public final class Main {
 
                             if (isClicksDone) {
                                 unsuccessfulTries[0] = 0;
+                                millisecondsToWait[0] = Helpers.RANDOM.nextLong(ONE_MINUTE_IN_MILLISECONDS, THREE_MINUTES_IN_MILLISECONDS);
                                 System.out.println("Clicks cycle is finished. Waiting for " + millisecondsToWait[0] / 1000 + " seconds to start a new cycle.");
                                 countdownTimer.start(); // Start the countdown timer
                                 Selenide.sleep(millisecondsToWait[0] + 1000);
@@ -211,9 +211,10 @@ public final class Main {
                                     JOptionPane.showMessageDialog(frame, "Looks like there is to many unsuccessful clicks tries. Please check logs and try to click on 'Stop' and 'Start' button again.");
                                 }
 
-                                long millisecondsToWaitBeforeNextTry = Helpers.RANDOM.nextLong(5000, 10000);
-                                System.out.println("Clicks cycle was not finished successfully. Waiting for " + millisecondsToWaitBeforeNextTry / 1000 + " seconds to retry cycle.");
-                                Selenide.sleep(millisecondsToWaitBeforeNextTry);
+                                millisecondsToWait[0] = Helpers.RANDOM.nextLong(5000, 10000);
+                                System.out.println("Clicks cycle was not finished successfully. Waiting for " + millisecondsToWait[0] / 1000 + " seconds to retry cycle.");
+                                countdownTimer.start(); // Start the countdown timer
+                                Selenide.sleep(millisecondsToWait[0] + 1000);
                             }
                         }
                         stopClickingButton.setEnabled(false);
