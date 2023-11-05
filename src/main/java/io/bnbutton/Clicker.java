@@ -3,6 +3,8 @@ package io.bnbutton;
 import com.codeborne.selenide.Condition;
 import com.codeborne.selenide.Selectors;
 import com.codeborne.selenide.SelenideElement;
+import com.codeborne.selenide.ex.ElementNotFound;
+import com.codeborne.selenide.ex.ElementShould;
 import org.openqa.selenium.By;
 
 import static com.codeborne.selenide.Selenide.$;
@@ -170,7 +172,7 @@ public class Clicker {
             System.out.println("Waiting for REPAIR confirmation popup to disappear");
             $(HEADER_REPAIR_CONFIRMATION_LOCATOR).should(Condition.disappear);
             isButtonRepaired = true;
-        } catch (Exception e) {
+        } catch (Exception | ElementNotFound | ElementShould e) {
             System.out.println("Something went wrong. Caught exception: \n");
             e.printStackTrace();
         }

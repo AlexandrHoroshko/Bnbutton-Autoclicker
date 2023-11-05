@@ -17,14 +17,18 @@ public class MetamaskConnector {
             System.out.println("Checking if Metamask is connected...");
             if (!isLogoutButtonVisible()) {
                 System.out.println("Metamask is not connected, trying to connect...");
-                clickOnConnectWalletButton();
-                if (BrowserConfig.waitForOpenSecondWindow()) {
-                    BrowserConfig.switchToSecondWindow();
-                    MetamaskConnector.clickOnSignButton();
-                    if (BrowserConfig.waitForCloseSecondWindow()) {
-                        BrowserConfig.switchToWindow(mainTabId);
-                        System.out.println("Metamask successfully connected");
+                if (isConnectButtonVisible()) {
+                    clickOnConnectWalletButton();
+                    if (BrowserConfig.waitForOpenSecondWindow()) {
+                        BrowserConfig.switchToSecondWindow();
+                        MetamaskConnector.clickOnSignButton();
+                        if (BrowserConfig.waitForCloseSecondWindow()) {
+                            BrowserConfig.switchToWindow(mainTabId);
+                            System.out.println("Metamask successfully connected");
+                        }
                     }
+                } else {
+                    System.out.println("Metamask is not connected and 'Connect Wallet' button is not visible");
                 }
             }
         } catch (RuntimeException e) {
@@ -45,6 +49,11 @@ public class MetamaskConnector {
     private static boolean isLogoutButtonVisible() {
         System.out.println("Check if 'Logout' button is visible");
         return Selenide.$(BUTTON_LOGOUT_LOCATOR).exists();
+    }
+
+    private static boolean isConnectButtonVisible() {
+        System.out.println("Check if 'Connect Wallet' button is visible");
+        return Selenide.$(BUTTON_CONNECT_WALLET_LOCATOR).exists();
     }
 
     private static void clickOnSignButton() throws RuntimeException {
