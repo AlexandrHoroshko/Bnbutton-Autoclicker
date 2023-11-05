@@ -171,21 +171,27 @@ public final class Main {
                             boolean isClicksDone = false;
                             millisecondsToWait[0] = Helpers.RANDOM.nextLong(ONE_MINUTE_IN_MILLISECONDS, THREE_MINUTES_IN_MILLISECONDS);
 
-                            BrowserConfig.switchToWindow(mainTabId[0]);
-                            Selenide.open("https://bnbutton.io/buy");
-
-                            if (WebDriverRunner.getWebDriver().getCurrentUrl().equals("https://bnbutton.io/buy")) {
-                                isClicksDone = Clicker.doClicksOnAllButtons();
-                            } else {
-                                BrowserConfig.closeAllWindowsExceptOfMain(mainTabId[0]);
-                                Selenide.open("https://bnbutton.io/");
-                                MetamaskConnector.connectWallet(mainTabId[0]);
+                            try {
+                                BrowserConfig.switchToWindow(mainTabId[0]);
                                 Selenide.open("https://bnbutton.io/buy");
-                                isMetamaskConnectedInCurrentCycle = true;
+
+                                if (WebDriverRunner.getWebDriver().getCurrentUrl().equals("https://bnbutton.io/buy")) {
+                                    isClicksDone = Clicker.doClicksOnAllButtons();
+                                } else {
+                                    BrowserConfig.closeAllWindowsExceptOfMain(mainTabId[0]);
+                                    Selenide.open("https://bnbutton.io/");
+                                    MetamaskConnector.connectWallet(mainTabId[0]);
+                                    Selenide.open("https://bnbutton.io/buy");
+                                    isMetamaskConnectedInCurrentCycle = true;
+                                }
+                                if (isMetamaskConnectedInCurrentCycle) {
+                                    isClicksDone = Clicker.doClicksOnAllButtons();
+                                }
+                            } catch (Exception ex) {
+                                System.out.println("Something went wrong. Caught exception: \n");
+                                ex.printStackTrace();
                             }
-                            if (isMetamaskConnectedInCurrentCycle) {
-                                isClicksDone = Clicker.doClicksOnAllButtons();
-                            }
+
                             if (isClicksDone) {
                                 unsuccessfulTries[0] = 0;
                                 System.out.println("Clicks cycle is finished. Waiting for " + millisecondsToWait[0] / 1000 + " seconds to start a new cycle.");
@@ -199,6 +205,7 @@ public final class Main {
                                 }
 
                                 long millisecondsToWaitBeforeNextTry = Helpers.RANDOM.nextLong(5000, 10000);
+                                System.out.println("Clicks cycle was not finished successfully. Waiting for " + millisecondsToWaitBeforeNextTry / 1000 + " seconds to retry cycle.");
                                 Selenide.sleep(millisecondsToWaitBeforeNextTry);
                             }
                         }
