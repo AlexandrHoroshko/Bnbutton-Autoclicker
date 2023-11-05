@@ -2,8 +2,10 @@ package io.bnbutton;
 
 import com.codeborne.selenide.Selenide;
 import com.codeborne.selenide.WebDriverRunner;
+import org.openqa.selenium.NoSuchSessionException;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebDriverException;
+import org.openqa.selenium.remote.UnreachableBrowserException;
 
 import javax.swing.*;
 import java.awt.*;
@@ -188,7 +190,7 @@ public final class Main {
                                 if (isMetamaskConnectedInCurrentCycle) {
                                     isClicksDone = Clicker.doClicksOnAllButtons();
                                 }
-                            } catch (WebDriverException ignored) {
+                            } catch (UnreachableBrowserException | NoSuchSessionException ignored) {
                                 JOptionPane.showMessageDialog(frame, "Something went wrong with browser. Please click on 'Open Browser' button and configure Metamask again.");
                                 break;
                             } catch (Exception ex) {
