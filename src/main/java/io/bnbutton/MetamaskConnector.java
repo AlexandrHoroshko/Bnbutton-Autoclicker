@@ -48,11 +48,13 @@ public class MetamaskConnector {
 
     private static boolean isLogoutButtonVisible() {
         System.out.println("Check if 'Logout' button is visible");
+        Selenide.sleep(2000);
         return Selenide.$(BUTTON_LOGOUT_LOCATOR).exists();
     }
 
     private static boolean isConnectButtonVisible() {
         System.out.println("Check if 'Connect Wallet' button is visible");
+        Selenide.sleep(2000);
         return Selenide.$(BUTTON_CONNECT_WALLET_LOCATOR).exists();
     }
 
