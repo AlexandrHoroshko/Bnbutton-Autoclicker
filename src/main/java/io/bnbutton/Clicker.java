@@ -46,7 +46,7 @@ public class Clicker {
             doClicksOnDiamondButton();
             doClicksOnLegendaryButton();
             isClicksFinished = true;
-        } catch (Exception e) {
+        } catch (Exception | ElementNotFound e) {
             System.out.println("Something went wrong. Caught exception: \n");
             e.printStackTrace();
         }
@@ -114,20 +114,21 @@ public class Clicker {
                     sleep(randomSleepTime);
                     availableClicksCount = getAvailableClicksCountForButton(button);
                     System.out.println("Remaining clicks count: " + availableClicksCount);
-                    double strengthPercent = getStrengthPercentForButton(button);
-                    System.out.println("Remaining strength percent: " + strengthPercent);
-                    if (strengthPercent < 10) {
-                        System.out.println("Button has less than 1% strength. Repairing...");
-                        if (!repairButton(button)) {
-                            System.out.println("Button is not repaired. Please repair it manually and then clicks will continue work.");
-                        }
-                    }
+                    //TODO: uncomment if you want to repair buttons automatically
+//                    double strengthPercent = getStrengthPercentForButton(button);
+//                    System.out.println("Remaining strength percent: " + strengthPercent);
+//                    if (strengthPercent < 10) {
+//                        System.out.println("Button has less than 1% strength. Repairing...");
+//                        if (!repairButton(button)) {
+//                            System.out.println("Button is not repaired. Please repair it manually and then clicks will continue work.");
+//                        }
+//                    }
                     System.out.println("\n");
                 }
             } else {
                 System.out.println("Button is not bought");
             }
-        } catch (Exception e) {
+        } catch (Exception | ElementNotFound e) {
             throw new RuntimeException(e);
         }
     }

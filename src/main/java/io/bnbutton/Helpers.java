@@ -1,6 +1,8 @@
 package io.bnbutton;
 
 import com.codeborne.selenide.SelenideElement;
+import com.codeborne.selenide.ex.ElementNotFound;
+import com.codeborne.selenide.ex.ElementShould;
 
 import java.util.Random;
 
@@ -13,7 +15,7 @@ public class Helpers {
     public static void clickByActions(SelenideElement element) throws RuntimeException {
         try {
             actions().moveToElement(element).click().perform();
-        } catch (Exception e) {
+        } catch (Exception | ElementNotFound | ElementShould e) {
             throw new RuntimeException(e);
         }
     }
