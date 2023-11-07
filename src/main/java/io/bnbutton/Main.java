@@ -175,11 +175,10 @@ public final class Main {
                                 return;
                             }
 
-                            Clicker.isAutoRepairEnabled = checkBox.isSelected();
-
                             while (doClicksOnButtons[0]) {
                                 boolean isMetamaskConnectedInCurrentCycle = false;
                                 boolean isClicksDone = false;
+                                Clicker.isAutoRepairEnabled = checkBox.isSelected();
 
                                 try {
                                     BrowserConfig.switchToWindow(mainTabId[0]);
