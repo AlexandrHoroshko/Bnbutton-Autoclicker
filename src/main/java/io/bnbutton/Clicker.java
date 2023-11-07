@@ -2,10 +2,12 @@ package io.bnbutton;
 
 import com.codeborne.selenide.Condition;
 import com.codeborne.selenide.Selectors;
+import com.codeborne.selenide.Selenide;
 import com.codeborne.selenide.SelenideElement;
 import com.codeborne.selenide.ex.ElementNotFound;
 import com.codeborne.selenide.ex.ElementShould;
 import org.openqa.selenium.By;
+import org.openqa.selenium.NoSuchElementException;
 
 import static com.codeborne.selenide.Selenide.$;
 import static com.codeborne.selenide.Selenide.sleep;
@@ -31,6 +33,7 @@ public class Clicker {
     private static final By HEADER_REPAIR_CONFIRMATION_LOCATOR = Selectors.byXpath(".//*[text()='Repair button']");
     private static final By BUTTON_OK_REPAIR_CONFIRMATION_LOCATOR = Selectors.byXpath(".//button[text()='Ok']");
 
+    public static boolean isAutoRepairEnabled = false;
 
     public static boolean doClicksOnAllButtons() {
         boolean isClicksFinished = false;
@@ -46,7 +49,7 @@ public class Clicker {
             doClicksOnDiamondButton();
             doClicksOnLegendaryButton();
             isClicksFinished = true;
-        } catch (Exception | ElementNotFound e) {
+        } catch (Throwable e) {
             System.out.println("Something went wrong. Caught exception: \n");
             e.printStackTrace();
         }
@@ -114,21 +117,20 @@ public class Clicker {
                     sleep(randomSleepTime);
                     availableClicksCount = getAvailableClicksCountForButton(button);
                     System.out.println("Remaining clicks count: " + availableClicksCount);
-                    //TODO: uncomment if you want to repair buttons automatically
-//                    double strengthPercent = getStrengthPercentForButton(button);
-//                    System.out.println("Remaining strength percent: " + strengthPercent);
-//                    if (strengthPercent < 10) {
-//                        System.out.println("Button has less than 1% strength. Repairing...");
-//                        if (!repairButton(button)) {
-//                            System.out.println("Button is not repaired. Please repair it manually and then clicks will continue work.");
-//                        }
-//                    }
+                    double strengthPercent = getStrengthPercentForButton(button);
+                    System.out.println("Remaining strength percent: " + strengthPercent);
+                    if (isAutoRepairEnabled && strengthPercent < 10) {
+                        System.out.println("Button has less than 1% strength. Repairing...");
+                        if (!repairButton(button)) {
+                            System.out.println("Button is not repaired. Please repair it manually and then clicks will continue work.");
+                        }
+                    }
                     System.out.println("\n");
                 }
             } else {
                 System.out.println("Button is not bought");
             }
-        } catch (Exception | ElementNotFound e) {
+        } catch (Throwable e) {
             throw new RuntimeException(e);
         }
     }
@@ -147,7 +149,7 @@ public class Clicker {
                 countText = countElement.text();
             }
             return Integer.parseInt(countText);
-        } catch (Exception e) {
+        } catch (Throwable e) {
             throw new RuntimeException(e);
         }
     }
@@ -156,7 +158,7 @@ public class Clicker {
         System.out.println("Getting strength percent for button");
         try {
             return Double.parseDouble(getButtonParentContainer(button).find(STRENGTH_PERCENT_LOCATOR).text().replace("%", ""));
-        } catch (Exception e) {
+        } catch (Throwable e) {
             throw new RuntimeException(e);
         }
     }
@@ -173,7 +175,7 @@ public class Clicker {
             System.out.println("Waiting for REPAIR confirmation popup to disappear");
             $(HEADER_REPAIR_CONFIRMATION_LOCATOR).should(Condition.disappear);
             isButtonRepaired = true;
-        } catch (Exception | ElementNotFound | ElementShould e) {
+        } catch (Throwable e) {
             System.out.println("Something went wrong. Caught exception: \n");
             e.printStackTrace();
         }
@@ -184,7 +186,7 @@ public class Clicker {
         System.out.println("\nOpening NFT BUTTONS tab");
         try {
             Helpers.clickByActions($(TAB_NFT_BUTTONS_LOCATOR));
-        } catch (Exception e) {
+        } catch (Throwable e) {
             throw new RuntimeException(e);
         }
     }
@@ -192,7 +194,7 @@ public class Clicker {
     private static SelenideElement getButtonParentContainer(SelenideElement button) throws RuntimeException {
         try {
             return button.parent().parent().parent().parent().parent();
-        } catch (Exception e) {
+        } catch (Throwable e) {
             throw new RuntimeException(e);
         }
     }

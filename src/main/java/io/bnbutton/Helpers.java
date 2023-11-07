@@ -15,7 +15,7 @@ public class Helpers {
     public static void clickByActions(SelenideElement element) throws RuntimeException {
         try {
             actions().moveToElement(element).click().perform();
-        } catch (Exception | ElementNotFound | ElementShould e) {
+        } catch (Throwable e) {
             throw new RuntimeException(e);
         }
     }

@@ -95,6 +95,8 @@ public final class Main {
                 }
             });
 
+            JCheckBox checkBox = new JCheckBox("Enable Auto Repair");
+
             // Create a JButton
             JButton openBrowserButton = new JButton("Open Browser");
             JButton startClickingButton = new JButton("Start Clicking");
@@ -160,73 +162,78 @@ public final class Main {
                 if (clickingThread[0] == null || !clickingThread[0].isAlive()) {
 
                     JOptionPane.showConfirmDialog(frame, "Did you add your wallet manually and connect it for the first time?", "Please confirm", JOptionPane.YES_NO_OPTION);
+                    if (JOptionPane.YES_OPTION != 0) {
+                        // Start a new cycle thread
+                        clickingThread[0] = new Thread(() -> {
+                            if (browser[0] != null && !browser[0].toString().contains("(null)")) {
+                                startClickingButton.setEnabled(false);
+                                stopClickingButton.setEnabled(true);
+                                doClicksOnButtons[0] = true;
+                                WebDriverRunner.setWebDriver(browser[0]);
+                            } else {
+                                JOptionPane.showMessageDialog(frame, "Browser is not opened. Please click on 'Open Browser' button first and config Metamask.");
+                                return;
+                            }
 
-                    // Start a new cycle thread
-                    clickingThread[0] = new Thread(() -> {
-                        if (browser[0] != null && !browser[0].toString().contains("(null)")) {
-                            startClickingButton.setEnabled(false);
-                            stopClickingButton.setEnabled(true);
-                            doClicksOnButtons[0] = true;
-                            WebDriverRunner.setWebDriver(browser[0]);
-                        } else {
-                            JOptionPane.showMessageDialog(frame, "Browser is not opened. Please click on 'Open Browser' button first and config Metamask.");
-                            return;
-                        }
+                            Clicker.isAutoRepairEnabled = checkBox.isSelected();
 
-                        while (doClicksOnButtons[0]) {
-                            boolean isMetamaskConnectedInCurrentCycle = false;
-                            boolean isClicksDone = false;
+                            while (doClicksOnButtons[0]) {
+                                boolean isMetamaskConnectedInCurrentCycle = false;
+                                boolean isClicksDone = false;
 
-                            try {
-                                BrowserConfig.switchToWindow(mainTabId[0]);
-                                Selenide.open("https://bnbutton.io/buy");
-
-                                if (WebDriverRunner.getWebDriver().getCurrentUrl().equals("https://bnbutton.io/buy")) {
-                                    isClicksDone = Clicker.doClicksOnAllButtons();
-                                } else {
-                                    BrowserConfig.closeAllWindowsExceptOfMain(mainTabId[0]);
-                                    BrowserConfig.switchToWindow(mainTabId[0]);
-                                    Selenide.open("https://bnbutton.io/");
-                                    MetamaskConnector.connectWallet(mainTabId[0]);
+                                try {
                                     BrowserConfig.switchToWindow(mainTabId[0]);
                                     Selenide.open("https://bnbutton.io/buy");
-                                    isMetamaskConnectedInCurrentCycle = true;
-                                }
-                                if (isMetamaskConnectedInCurrentCycle) {
-                                    isClicksDone = Clicker.doClicksOnAllButtons();
-                                }
-                            } catch (UnreachableBrowserException | NoSuchSessionException |
-                                     NoSuchWindowException ignored) {
-                                JOptionPane.showMessageDialog(frame, "Something went wrong with browser. Please restart the app.");
-                                break;
-                            } catch (Exception ex) {
-                                System.out.println("\nSomething went wrong. Caught exception: \n");
-                                ex.printStackTrace();
-                            }
 
-                            if (isClicksDone) {
-                                errorLabel.setVisible(false);
-                                unsuccessfulTries[0] = 0;
-                                millisecondsToWait[0] = Helpers.RANDOM.nextLong(ONE_MINUTE_IN_MILLISECONDS, THREE_MINUTES_IN_MILLISECONDS);
-                                System.out.println("Clicks cycle is finished. Waiting for " + millisecondsToWait[0] / 1000 + " seconds to start a new cycle.");
-                                countdownTimer.start(); // Start the countdown timer
-                                Selenide.sleep(millisecondsToWait[0] + 1000);
-                                textArea.setText("");
-                            } else {
-                                unsuccessfulTries[0]++;
-                                if (unsuccessfulTries[0] >= unsuccessfulTriesLimit) {
-                                    errorLabel.setVisible(true);
+                                    if (WebDriverRunner.getWebDriver().getCurrentUrl().equals("https://bnbutton.io/buy")) {
+                                        isClicksDone = Clicker.doClicksOnAllButtons();
+                                    } else {
+                                        BrowserConfig.closeAllWindowsExceptOfMain(mainTabId[0]);
+                                        BrowserConfig.switchToWindow(mainTabId[0]);
+                                        Selenide.open("https://bnbutton.io/");
+                                        MetamaskConnector.connectWallet(mainTabId[0]);
+                                        BrowserConfig.switchToWindow(mainTabId[0]);
+                                        Selenide.open("https://bnbutton.io/buy");
+                                        isMetamaskConnectedInCurrentCycle = true;
+                                    }
+                                    if (isMetamaskConnectedInCurrentCycle) {
+                                        isClicksDone = Clicker.doClicksOnAllButtons();
+                                    }
+                                } catch (UnreachableBrowserException | NoSuchSessionException |
+                                         NoSuchWindowException ignored) {
+                                    JOptionPane.showMessageDialog(frame, "Something went wrong with browser. Please restart the app.");
+                                    break;
+                                } catch (Exception ex) {
+                                    System.out.println("\nSomething went wrong. Caught exception: \n");
+                                    ex.printStackTrace();
                                 }
 
-                                millisecondsToWait[0] = Helpers.RANDOM.nextLong(5000, 10000);
-                                System.out.println("Clicks cycle was not finished successfully. Waiting for " + millisecondsToWait[0] / 1000 + " seconds to retry cycle.");
-                                countdownTimer.start(); // Start the countdown timer
-                                Selenide.sleep(millisecondsToWait[0] + 1000);
+                                if (isClicksDone) {
+                                    errorLabel.setVisible(false);
+                                    unsuccessfulTries[0] = 0;
+                                    millisecondsToWait[0] = Helpers.RANDOM.nextLong(ONE_MINUTE_IN_MILLISECONDS, THREE_MINUTES_IN_MILLISECONDS);
+                                    System.out.println("Clicks cycle is finished. Waiting for " + millisecondsToWait[0] / 1000 + " seconds to start a new cycle.");
+                                    countdownTimer.start(); // Start the countdown timer
+                                    Selenide.sleep(millisecondsToWait[0] + 1000);
+                                    textArea.setText("");
+                                } else {
+                                    unsuccessfulTries[0]++;
+                                    if (unsuccessfulTries[0] >= unsuccessfulTriesLimit) {
+                                        errorLabel.setVisible(true);
+                                    }
+
+                                    millisecondsToWait[0] = Helpers.RANDOM.nextLong(5000, 10000);
+                                    System.out.println("Clicks cycle was not finished successfully. Waiting for " + millisecondsToWait[0] / 1000 + " seconds to retry cycle.");
+                                    countdownTimer.start(); // Start the countdown timer
+                                    Selenide.sleep(millisecondsToWait[0] + 1000);
+                                }
                             }
-                        }
-                        stopClickingButton.setEnabled(false);
-                    });
-                    clickingThread[0].start();
+                            stopClickingButton.setEnabled(false);
+                        });
+                        clickingThread[0].start();
+                    } else {
+                        JOptionPane.showMessageDialog(frame, "Please add your wallet manually and connect it for the first time, only after that click on 'Start' button.");
+                    }
                 } else {
                     stopClickingButton.setEnabled(true);
                     JOptionPane.showMessageDialog(frame, "Something went wrong. Try to click on 'Stop' button and then on 'Start' button again.");
@@ -259,6 +266,8 @@ public final class Main {
             buttonsPanel.add(startClickingButton);
             buttonsPanel.add(Box.createRigidArea(new Dimension(20, 0)));
             buttonsPanel.add(stopClickingButton);
+            buttonsPanel.add(Box.createRigidArea(new Dimension(20, 0)));
+            buttonsPanel.add(checkBox);
 
             logsPanel.add(scrollPane);
 

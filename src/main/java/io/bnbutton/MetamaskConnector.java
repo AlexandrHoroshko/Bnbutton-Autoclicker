@@ -31,7 +31,7 @@ public class MetamaskConnector {
                     System.out.println("Metamask is not connected and 'Connect Wallet' button is not visible");
                 }
             }
-        } catch (RuntimeException e) {
+        } catch (Throwable e) {
             System.out.println("Something went wrong while connecting Metamask. Caught exception: \n");
             e.printStackTrace();
         }
@@ -41,7 +41,7 @@ public class MetamaskConnector {
         System.out.println("Click on 'Connect Wallet' button");
         try {
             Helpers.clickByActions(Selenide.$(BUTTON_CONNECT_WALLET_LOCATOR));
-        } catch (RuntimeException e) {
+        } catch (Throwable e) {
             throw new RuntimeException(e);
         }
     }
@@ -62,7 +62,7 @@ public class MetamaskConnector {
         System.out.println("Click on 'Sign' button");
         try {
             Helpers.clickByActions(Selenide.$(BUTTON_SIGN_LOCATOR));
-        } catch (RuntimeException e) {
+        } catch (Throwable e) {
             throw new RuntimeException(e);
         }
     }
