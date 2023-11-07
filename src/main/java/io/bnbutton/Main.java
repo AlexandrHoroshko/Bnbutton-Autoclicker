@@ -161,8 +161,9 @@ public final class Main {
             startClickingButton.addActionListener(e -> {
                 if (clickingThread[0] == null || !clickingThread[0].isAlive()) {
 
-                    JOptionPane.showConfirmDialog(frame, "Did you add your wallet manually and connect it for the first time?", "Please confirm", JOptionPane.YES_NO_OPTION);
-                    if (JOptionPane.YES_OPTION != 0) {
+                    int choice = JOptionPane.showConfirmDialog(frame, "Did you add your wallet manually and connect it for the first time?", "Please confirm", JOptionPane.YES_NO_OPTION);
+
+                    if (choice == JOptionPane.YES_OPTION) {
                         // Start a new cycle thread
                         clickingThread[0] = new Thread(() -> {
                             if (browser[0] != null && !browser[0].toString().contains("(null)")) {
